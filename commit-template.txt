@@ -1,0 +1,69 @@
+# <type>: <subject>
+# |<----  请使用最多50个字符  ---->|
+
+# <body>
+# |<----  每行最多72个字符  ---->|
+
+# <footer>
+
+# 提交类型(type)说明:
+#   feat:     新功能 (new feature)
+#   fix:      修复Bug (bug fix)
+#   docs:     文档更新 (documentation changes)
+#   style:    代码格式调整，不影响代码逻辑 (formatting, missing semi colons)
+#   refactor: 代码重构 (refactoring production code)
+#   perf:     性能优化 (performance improvements)
+#   test:     测试相关 (adding missing tests, refactoring tests)
+#   build:    构建系统或外部依赖项修改 (build-related changes)
+#   ci:       CI/CD配置修改 (CI/CD configuration changes)
+#   chore:    其他修改 (other changes that don't modify src or test files)
+#   revert:   回滚提交 (revert to a previous commit)
+
+# 主题(subject)说明:
+# - 使用祈使句语气
+# - 首字母不要大写
+# - 结尾不要加句号
+
+# 正文(body)说明:
+# - 详细说明代码变动的动机和前后对比
+# - 使用祈使句语气
+
+# 页脚(footer)说明:
+# - 关闭Issue: Closes #123, Fixes #123
+# - 不兼容变动: BREAKING CHANGE: 说明变动内容
+
+# 最佳实践:
+# - 保持一致性: 遵循团队统一的提交说明格式和约定，提高协作效率
+# - 简洁明了: 避免使用复杂词汇或长篇大论，确保信息清晰传达
+# - 说明修改意图: 重点说明为什么要做这些修改，而不是仅描述做了什么
+# - 引用Issue: 修复issue时必须引用对应的编号，便于追踪和关联
+# - 使用工具: 推荐使用commitizen等工具辅助生成规范的提交说明
+
+# 示例:
+# 中文示例:
+# feat: 添加用户登录功能
+#
+# 实现用户名密码登录功能，包含以下特性：
+# - 基于JWT的身份验证
+# - 密码加密存储
+# - 登录失败次数限制
+#
+# Closes #123
+#
+# English Example:
+# feat: implement user authentication
+#
+# This commit introduces user authentication functionality to the application.
+#
+# Users can now:
+# - Register with a username and password
+# - Log in using their credentials
+# - Log out of their account
+#
+# The following changes were made:
+# - Added a new User model
+# - Created a new AuthenticationController
+# - Implemented registration and login routes
+# - Added JWT token generation and validation
+#
+# Fixes #10
