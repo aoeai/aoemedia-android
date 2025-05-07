@@ -17,13 +17,10 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -35,14 +32,14 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.request.allowRgb565
 import coil3.request.crossfade
-import com.aoeai.media.data.model.gallery.PhotoItem
 import com.aoeai.media.data.repository.gallery.PhotoRepository
-import kotlinx.coroutines.launch
+import com.aoeai.media.view_model.PhotoListVM
 
 class PhotoListActivity : ComponentActivity() {
     companion object {
         const val EXTRA_ALBUM_ID = "album_id"
     }
+    val viewModel = PhotoListVM(PhotoRepository(this))
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,21 +47,24 @@ class PhotoListActivity : ComponentActivity() {
         val albumId = intent.getStringExtra(EXTRA_ALBUM_ID) ?: ""
 
         setContent {
-            PhotoListView(albumId = albumId)
+            PhotoListView(albumId = albumId, viewModel = viewModel)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        // 清理 Coil 的内存缓存
+        coil3.ImageLoader(this).memoryCache?.clear()
+        // 确保 ViewModel 中的资源正确释放
+        viewModel.clearResources()
     }
 }
 
 @Composable
-fun PhotoListView(albumId: String) {
-    val context = LocalContext.current
-    val photoRepository = remember { PhotoRepository(context) }
-    var photos by remember { mutableStateOf<List<PhotoItem>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(false) }
-    var currentPage by remember { mutableIntStateOf(1) }
-    val pageSize = 30
+fun PhotoListView(albumId: String,viewModel: PhotoListVM) {
+    val photos by viewModel.photos.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
     val gridState = rememberLazyGridState()
-    val coroutineScope = rememberCoroutineScope()
 
     // 检测是否滚动到底部
     val shouldLoadMore by remember {
@@ -79,21 +79,13 @@ fun PhotoListView(albumId: String) {
 
     // 首次加载照片
     LaunchedEffect(albumId) {
-        isLoading = true
-        photos = photoRepository.getPhotosByAlbumId(albumId, currentPage, pageSize)
-        isLoading = false
+        viewModel.loadInitialPhotos(albumId)
     }
 
     // 滚动到底部加载更多
     LaunchedEffect(shouldLoadMore) {
         if (shouldLoadMore) {
-            coroutineScope.launch {
-                isLoading = true
-                currentPage++
-                val newPhotos = photoRepository.getPhotosByAlbumId(albumId, currentPage, pageSize)
-                photos = photos + newPhotos
-                isLoading = false
-            }
+            viewModel.loadMorePhotos(albumId)
         }
     }
 
